@@ -21,7 +21,7 @@ gamerunner:
 	$(CXX) $(CXXFLAG) -I$(GMAEINCLUDE) -pthread main.cpp -o ${BUILDDIR}/gamerunner -ldl
 
 #------------------------------------------------------------------------------------------
-all_bonus: gamerunner_bonus AI
+all_bonus: gamerunner_bonus AI_bonus
 
 AI_bonus:
 	$(CXX) $(CXXFLAG_BONUS) -I$(GMAEINCLUDE) -shared AITemplate/Porting.cpp -o ${BUILDDIR}/AI.so
