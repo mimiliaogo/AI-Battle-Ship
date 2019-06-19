@@ -40,8 +40,43 @@ namespace TA
             if( !prepareState() ) return ;
 
             updateGuiGame();
-
             //Todo: Play Game
+
+            while(1){//we will break out the game if lose
+                //=========================Player1 attack=========================
+                //-----------------------------update-----------------------------
+                //hint : callbackReportEnemy
+                call(&AIInterface::callbackReportEnemy, m_P1, m_P1_callbackReportEnemy);
+                m_P1_callbackReportEnemy.clear();
+                //-----------------------------attack-----------------------------
+                //hint : queryWhereToHit
+                //hint : callbackReportHit              
+
+                if(checkGameover()){
+                    std::cout<<"Player 1 defeated Player 2"<<std::endl;
+                    break;
+                }
+                //----------------------------moveship----------------------------
+                //hint : queryHowToMoveShip
+
+                //=========================Player2 attack=========================
+                //-----------------------------update-----------------------------
+                //hint : callbackReportEnemy
+                call(&AIInterface::callbackReportEnemy, m_P2, m_P2_callbackReportEnemy);
+                m_P2_callbackReportEnemy.clear();
+                //-----------------------------attack-----------------------------
+                //hint : queryWhereToHit
+                //hint : callbackReportHit
+            
+                if(checkGameover()){
+                    std::cout<<"Player 2 defeated Player 1"<<std::endl;
+                    break;
+                }
+                //----------------------------moveship----------------------------
+                //hint : queryHowToMoveShip
+
+            }
+            return ;
         } 
 
    private:
@@ -216,5 +251,12 @@ namespace TA
         std::vector<Ship> m_P2Ship;
         Board m_P1Board;
         Board m_P2Board;
+
+        std::vector<std::pair<int, int>> m_P1_callbackReportEnemy;
+        std::vector<std::pair<int, int>> m_P2_callbackReportEnemy;
+        /*
+        if P2 fight P1 at place(x, y)
+        then push back (x, y) into m_P1_callbackReportEnemy
+        */
     } ;
 }
