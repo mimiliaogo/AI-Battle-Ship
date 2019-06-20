@@ -219,7 +219,64 @@ namespace TA
             putToGui("Done.\n");
             return true;
         }
+        bool moveshipState(int who)
+        {
+            std::vector<Ship> newPos;
+            if (who==1) {
+                newPos = call(&AIInterface::init, m_P1,m_P1Ship, m_runtime_limit);
+            }
+                
+            else if (who==2) {
+                newPos = call(&AIInterface::init, m_P2,m_P2Ship, m_runtime_limit);
+            }
 
+            //checking the position range of the ship
+            if( !checkShipPosition(newPos))
+            {
+                putToGui("Ship move to position which is out of range");
+                return false;
+            }
+            //checking the type of the ship
+            for (auto [size, x, y, state] : newPos) {
+                if (state!=Available) {
+                    putToGui("Your ship isn't Available");
+                    return false;
+                }
+            }
+
+            //checking whether the position is on Hit 
+            if (who==1) {
+                for(auto [size, x, y, state] : newPos) {
+                    for (int i=-((size-1)/2); i<=((size-1)/2); i++) {
+                        for (int j=-1; j<1; j++) {
+                            if (m_P1Board[x+i][y+j]==Hit) {
+                                putToGui("Your ship is on Hit place");
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (who==2) {
+                for(auto [size, x, y, state] : newPos) {
+                    for (int i=-((size-1)/2); i<=((size-1)/2); i++) {
+                        for (int j=-((size-1)/2); j<((size-1)/2); j++) {
+                            if (m_P2Board[x+i][y+j]==Hit) {
+                                putToGui("Your ship is on Hit place");
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            if (who==1) m_P1Ship = newPos;
+            else if (who==2) m_P2Ship = newPos;
+            return true;
+
+        }
         template<typename Func ,typename... Args, 
             std::enable_if_t< std::is_void<
                     std::invoke_result_t<Func, AIInterface, Args...>
