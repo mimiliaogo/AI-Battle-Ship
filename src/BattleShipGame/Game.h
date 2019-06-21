@@ -238,7 +238,7 @@ namespace TA
             }
             //checking the type of the ship
             for (auto [size, x, y, state] : newPos) {
-                if (state!=Available) {
+                if (state != Ship::State::Available) {
                     putToGui("Your ship isn't Available");
                     return false;
                 }
@@ -249,7 +249,7 @@ namespace TA
                 for(auto [size, x, y, state] : newPos) {
                     for (int i=-((size-1)/2); i<=((size-1)/2); i++) {
                         for (int j=-1; j<1; j++) {
-                            if (m_P1Board[x+i][y+j]==Hit) {
+                            if (m_P1Board[x+i][y+j] == Board::State::Hit) {
                                 putToGui("Your ship is on Hit place");
                                 return false;
                             }
@@ -262,7 +262,7 @@ namespace TA
                 for(auto [size, x, y, state] : newPos) {
                     for (int i=-((size-1)/2); i<=((size-1)/2); i++) {
                         for (int j=-((size-1)/2); j<((size-1)/2); j++) {
-                            if (m_P2Board[x+i][y+j]==Hit) {
+                            if (m_P2Board[x+i][y+j] == Board::State::Hit) {
                                 putToGui("Your ship is on Hit place");
                                 return false;
                             }
