@@ -46,7 +46,9 @@ namespace TA
                 //=========================Player1 attack=========================
                 updateShipState(1);
                 startShipAttack(1);
+                std::cout<<"startShipAttack Done\n";
                 moveshipState(1);
+                std::cout<<"moveshipState Done\n";
                 updateGuiGame();
                 //=========================Player2 attack=========================
                 updateShipState(2);
@@ -122,7 +124,7 @@ namespace TA
             
             if (who==1) {
                 newShip = m_P1Ship;
-                newPos = call(&AIInterface::queryHowToMoveShip, m_P1,m_P1Ship, m_runtime_limit);
+                newPos = call(&AIInterface::queryHowToMoveShip, m_P1,m_P1Ship);
                 for (auto [size, x, y, state] : m_P1Ship) {//for each ship it will give a new position
                     int i=0;
                     if (x!=newPos[i].first||y!=newPos[i].second) { //if moved
@@ -149,7 +151,7 @@ namespace TA
                 //checking the position range of the ship
                 if( !checkShipPosition(newShip))
                 {
-                    putToGui("P1 ship move invalid !")
+                    putToGui("P1 ship move invalid !");
                     return false;
                 }
                 //update mP1ship
@@ -157,7 +159,7 @@ namespace TA
             }
             else if (who==2) {
                 newShip = m_P2Ship;
-                newPos = call(&AIInterface::queryHowToMoveShip, m_P2,m_P1Ship, m_runtime_limit);
+                newPos = call(&AIInterface::queryHowToMoveShip, m_P2,m_P1Ship);
                 for (auto [size, x, y, state] : m_P2Ship) {//for each ship it will give a new position
                     int i=0;
                     if (x!=newPos[i].first||y!=newPos[i].second) { //if moved
@@ -183,7 +185,7 @@ namespace TA
                 //checking the position range of the ship
                 if( !checkShipPosition(newShip))
                 {
-                    putToGui("P2 ship move invalid !")
+                    putToGui("P2 ship move invalid !");
                     return false;
                 }
 
@@ -219,9 +221,9 @@ namespace TA
                     if(i.state != Ship::State::Sink)
                         m_P1_can_attack++;
                 }
-
                 for(int i=0; i<m_P1_can_attack; i++){
                     m_P1_attack_place = call(&AIInterface::queryWhereToHit, m_P1, m_P2Board);
+                    std::cout<<m_P1_attack_place.first<<" "<<m_P1_attack_place.second<<"\n";
                     if(m_P2Board[m_P1_attack_place.first][m_P1_attack_place.second] != Board::State::Unknown){
                         std::cout<<"Player 1 AI choose a place not Unknown"<<std::endl;
                         i--;
