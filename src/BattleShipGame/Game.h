@@ -40,8 +40,127 @@ namespace TA
             if( !prepareState() ) return ;
 
             updateGuiGame();
-
             //Todo: Play Game
+
+            while(1){//we will break out the game if lose
+                //=========================Player1 attack=========================
+                //-----------------------------update-----------------------------
+                //hint : callbackReportEnemy
+                call(&AIInterface::callbackReportEnemy, m_P1, m_P1_callbackReportEnemy);
+                m_P1_callbackReportEnemy.clear();
+                //-----------------------------attack-----------------------------
+                //hint : queryWhereToHit
+                //hint : callbackReportHit
+                int m_P1_can_attack = 0;
+                bool m_P1_report_hit = false;
+                Ship m_P1_attacked_ship;
+                std::pair<int, int> m_P1_attack_place;
+
+                std::cout<<"player1's turn"<<std::endl;
+                
+                for(auto i : m_P1Ship){
+                    if(i.state != Ship::State::Sink)
+                        m_P1_can_attack++;
+                }
+
+                for(int i=0; i<m_P1_can_attack; i++){
+                    m_P1_attack_place = call(&AIInterface::queryWhereToHit, m_P1, m_P2Board);
+                    if(m_P2Board[m_P1_attack_place.first][m_P1_attack_place.second] != Board::State::Unknown){
+                        std::cout<<"Player 1 AI choose a place not Unknown"<<std::endl;
+                        i--;
+                        continue;
+                    }
+                    m_P2_callbackReportEnemy.push_back(m_P1_attack_place);
+                    for(auto s : m_P2Ship){
+                        if(s.x <= m_P1_attack_place.first && m_P1_attack_place.first < s.x + s.size &&
+                            s.y <= m_P1_attack_place.second && m_P1_attack_place.second < s.y + s.size){
+                            m_P1_report_hit = true;
+                            m_P1_attacked_ship = s;
+                            break;
+                        }
+                    }
+                    call(&AIInterface::callbackReportHit, m_P1, m_P1_report_hit);
+                    if(m_P1_report_hit){
+                        m_P2Board[m_P1_attack_place.first][m_P1_attack_place.second] = Board::State::Hit;
+                        if(m_P1_attacked_ship.x == m_P1_attack_place.first + m_P1_attacked_ship.size/2 && 
+                            m_P1_attacked_ship.y == m_P1_attack_place.second + m_P1_attacked_ship.size/2){
+                            m_P1_attacked_ship.state = Ship::State::Sink;
+                        }
+                        else{
+                            m_P1_attacked_ship.state = Ship::State::Hit;
+                        }
+                    }
+                    else{
+                        m_P2Board[m_P1_attack_place.first][m_P1_attack_place.second] = Board::State::Empty;
+                    }
+                    if(checkGameover()){
+                        std::cout<<"Player 1 defeated Player 2"<<std::endl;
+                        return ;
+                    }
+                }
+                //----------------------------moveship----------------------------
+                //hint : queryHowToMoveShip
+
+                //=========================Player2 attack=========================
+                //-----------------------------update-----------------------------
+                //hint : callbackReportEnemy
+                call(&AIInterface::callbackReportEnemy, m_P2, m_P2_callbackReportEnemy);
+                m_P2_callbackReportEnemy.clear();
+                //-----------------------------attack-----------------------------
+                //hint : queryWhereToHit
+                //hint : callbackReportHit
+                int m_P2_can_attack = 0;
+                bool m_P2_report_hit = false;
+                Ship m_P2_attacked_ship;
+                std::pair<int, int> m_P2_attack_place;
+
+                std::cout<<"player2's turn"<<std::endl;
+                
+                for(auto i : m_P2Ship){
+                    if(i.state != Ship::State::Sink)
+                        m_P2_can_attack++;
+                }
+
+                for(int i=0; i<m_P2_can_attack; i++){
+                    m_P2_attack_place = call(&AIInterface::queryWhereToHit, m_P2, m_P1Board);
+                    if(m_P1Board[m_P2_attack_place.first][m_P2_attack_place.second] != Board::State::Unknown){
+                        std::cout<<"Player 2 AI choose a place not Unknown"<<std::endl;
+                        i--;
+                        continue;
+                    }
+                    m_P2_callbackReportEnemy.push_back(m_P2_attack_place);
+                    for(auto s : m_P1Ship){
+                        if(s.x <= m_P2_attack_place.first && m_P2_attack_place.first < s.x + s.size &&
+                            s.y <= m_P2_attack_place.second && m_P2_attack_place.second < s.y + s.size){
+                            m_P2_report_hit = true;
+                            m_P2_attacked_ship = s;
+                            break;
+                        }
+                    }
+                    call(&AIInterface::callbackReportHit, m_P2, m_P2_report_hit);
+                    if(m_P2_report_hit){
+                        m_P1Board[m_P2_attack_place.first][m_P2_attack_place.second] = Board::State::Hit;
+                        if(m_P2_attacked_ship.x == m_P2_attack_place.first + m_P2_attacked_ship.size/2 && 
+                            m_P2_attacked_ship.y == m_P2_attack_place.second + m_P2_attacked_ship.size/2){
+                            m_P2_attacked_ship.state = Ship::State::Sink;
+                        }
+                        else{
+                            m_P2_attacked_ship.state = Ship::State::Hit;
+                        }
+                    }
+                    else{
+                        m_P1Board[m_P2_attack_place.first][m_P2_attack_place.second] = Board::State::Empty;
+                    }
+                    if(checkGameover()){
+                        std::cout<<"Player 2 defeated Player 1"<<std::endl;
+                        return ;
+                    }
+                }
+                //----------------------------moveship----------------------------
+                //hint : queryHowToMoveShip
+
+            }
+            return ;
         } 
 
    private:
@@ -100,64 +219,84 @@ namespace TA
             putToGui("Done.\n");
             return true;
         }
+        
         bool moveshipState(int who)
         {
-            std::vector<Ship> newPos;
+            std::vector<std::pair<int,int>> newPos;
+            std::vector<Ship> newShip;//temporary for m_P1/2Ship
+            
             if (who==1) {
-                newPos = call(&AIInterface::init, m_P1,m_P1Ship, m_runtime_limit);
-            }
-                
-            else if (who==2) {
-                newPos = call(&AIInterface::init, m_P2,m_P2Ship, m_runtime_limit);
-            }
-
-            //checking the position range of the ship
-            if( !checkShipPosition(newPos))
-            {
-                putToGui("Ship move to position which is out of range");
-                return false;
-            }
-            //checking the type of the ship
-            for (auto [size, x, y, state] : newPos) {
-                if (state!=Available) {
-                    putToGui("Your ship isn't Available");
+                newShip = m_P1Ship;
+                newPos = call(&AIInterface::queryHowToMoveShip, m_P1,m_P1Ship, m_runtime_limit);
+                for (auto [size, x, y, state] : m_P1Ship) {//for each ship it will give a new position
+                    int i=0;
+                    if (x!=newPos[i].first||y!=newPos[i].second) { //if moved
+                        if (state != Ship::State::Available) {//if not available
+                            putToGui("Your ship isn't Available");
+                            return false;
+                        } else {//if move to Hit
+                            for (int k=0; k<size; k++) {
+                                for (int t=0; t<size; t++) {
+                                    if (m_P1Board[x+k][y+t] == Board::State::Hit) {
+                                        putToGui("Your ship is on Hit place");
+                                        return false;
+                                    }
+                                }
+                            }
+                        }
+                        //update the position
+                        x = newPos[i].first;
+                        y = newPos[i].second;
+                    } 
+                    i++;
+                }
+                //checking the position range of the ship
+                if( !checkShipPosition(newShip))
+                {
+                    putToGui("P1 ship move invalid !")
                     return false;
                 }
+                //update mP1ship
+                m_P1Ship = newShip;
             }
-
-            //checking whether the position is on Hit 
-            if (who==1) {
-                for(auto [size, x, y, state] : newPos) {
-                    for (int i=-((size-1)/2); i<=((size-1)/2); i++) {
-                        for (int j=-1; j<1; j++) {
-                            if (m_P1Board[x+i][y+j]==Hit) {
-                                putToGui("Your ship is on Hit place");
-                                return false;
+            else if (who==2) {
+                newShip = m_P2Ship;
+                newPos = call(&AIInterface::queryHowToMoveShip, m_P2,m_P1Ship, m_runtime_limit);
+                for (auto [size, x, y, state] : m_P2Ship) {//for each ship it will give a new position
+                    int i=0;
+                    if (x!=newPos[i].first||y!=newPos[i].second) { //if moved
+                        if (state != Ship::State::Available) {//if not available
+                            putToGui("Your ship isn't Available");
+                            return false;
+                        } else {//if move to Hit
+                            for (int k=0; k<size; k++) {
+                                for (int t=0; t<size; t++) {
+                                    if (m_P2Board[x+k][y+t] == Board::State::Hit) {
+                                        putToGui("Your ship is on Hit place");
+                                        return false;
+                                    }
+                                }
                             }
                         }
-                    }
+                        //update the position
+                        x = newPos[i].first;
+                        y = newPos[i].second;
+                    } 
+                    i++;
                 }
-            }
-
-            if (who==2) {
-                for(auto [size, x, y, state] : newPos) {
-                    for (int i=-((size-1)/2); i<=((size-1)/2); i++) {
-                        for (int j=-((size-1)/2); j<((size-1)/2); j++) {
-                            if (m_P2Board[x+i][y+j]==Hit) {
-                                putToGui("Your ship is on Hit place");
-                                return false;
-                            }
-                        }
-                    }
+                //checking the position range of the ship
+                if( !checkShipPosition(newShip))
+                {
+                    putToGui("P2 ship move invalid !")
+                    return false;
                 }
+
+                //update mP1ship
+                m_P2Ship = newShip;
             }
-
-
-            if (who==1) m_P1Ship = newPos;
-            else if (who==2) m_P2Ship = newPos;
             return true;
-
         }
+
         template<typename Func ,typename... Args, 
             std::enable_if_t< std::is_void<
                     std::invoke_result_t<Func, AIInterface, Args...>
@@ -273,5 +412,12 @@ namespace TA
         std::vector<Ship> m_P2Ship;
         Board m_P1Board;
         Board m_P2Board;
+
+        std::vector<std::pair<int, int>> m_P1_callbackReportEnemy;
+        std::vector<std::pair<int, int>> m_P2_callbackReportEnemy;
+        /*
+        if P2 fight P1 at place(x, y)
+        then push back (x, y) into m_P1_callbackReportEnemy
+        */
     } ;
 }
