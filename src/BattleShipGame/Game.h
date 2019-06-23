@@ -136,8 +136,9 @@ namespace TA
                 if(newPos.empty()){
                     return true;
                 }
+                int i=0;
                 for (auto [size, x, y, state] : m_P1Ship) {//for each ship it will give a new position
-                    int i=0;
+                    
                     if (x!=newPos[i].first||y!=newPos[i].second) { //if moved
                         if (state != Ship::State::Available) {//if not available
                             putToGui("Your ship isn't Available");
@@ -174,8 +175,9 @@ namespace TA
                 if(newPos.empty()){
                     return true;
                 }
+                int i=0;
                 for (auto [size, x, y, state] : m_P2Ship) {//for each ship it will give a new position
-                    int i=0;
+                    
                     if (x!=newPos[i].first||y!=newPos[i].second) { //if moved
                         if (state != Ship::State::Available) {//if not available
                             putToGui("Your ship isn't Available");
@@ -242,13 +244,11 @@ namespace TA
                     //std::cout<<m_P1_attack_place.first<<" "<<m_P1_attack_place.second<<"\n";
                     if(!isValidPlace(m_P2Board.size(), m_P1_attack_place.first, m_P1_attack_place.second)){
                         std::cout<<"Player 1 AI choose a place out of range"<<std::endl;
-                        i--;
-                        continue;
+                        return false;
                     }
                     if(m_P2Board[m_P1_attack_place.first][m_P1_attack_place.second] != Board::State::Unknown){
                         std::cout<<"Player 1 AI choose a place not Unknown"<<std::endl;
-                        i--;
-                        continue;
+                        return false;
                     }
                     m_P2_callbackReportEnemy.push_back(m_P1_attack_place);
                     k = 0;
@@ -303,13 +303,11 @@ namespace TA
                     m_P2_attack_place = call(&AIInterface::queryWhereToHit, m_P2, m_P1Board);
                     if(!isValidPlace(m_P1Board.size(), m_P2_attack_place.first, m_P2_attack_place.second)){
                         std::cout<<"Player 1 AI choose a place out of range"<<std::endl;
-                        i--;
-                        continue;
+                        return false;
                     }
                     if(m_P1Board[m_P2_attack_place.first][m_P2_attack_place.second] != Board::State::Unknown){
                         std::cout<<"Player 2 AI choose a place not Unknown"<<std::endl;
-                        i--;
-                        continue;
+                        return false;
                     }
                     m_P2_callbackReportEnemy.push_back(m_P2_attack_place);
                     k=0;

@@ -2,222 +2,73 @@
 
 #include <BattleShipGame/Wrapper/AI.h>
 #include <BattleShipGame/Ship.h>
+#include <BattleShipGame/Board.h>
 #include <algorithm>
 #include <random>
 #include <ctime>
-#include <queue>
-#include <set>
 #include <iostream>
-#include <random>
 
 class AI : public AIInterface
 {
-    std::queue<std::pair<int,int>> way;
-    std::queue<std::pair<int,int>> hitway;
-    int valid[23][23];
-    int attack_x, attack_y;
-    int hit_x;
-    int report_hit_x, report_hit_y;
-    int cnt_shipsize;
-    int right_bound, up_bound;
-    bool hit_state;
-
+    std::vector<std::pair<int,int>> way;
+    std::vector<std::pair<int,int>> priority_way;
+    std::vector<TA::Ship> ship;
+    int pos_x, pos_y;
+    int x_size, y_size;
+    int attack_status;
+    int board[21][21];
 public:
     virtual std::vector<TA::Ship> init(int size ,std::vector<int> ship_size, bool order, std::chrono::milliseconds runtime) override
     {
-        std::cout<<"here!!!!!!!!!!!!!!!"<<std::endl;
         (void)ship_size;
         (void)runtime;
+        
+        ship.push_back({3, 0,  0,TA::Ship::State::Available});
+        ship.push_back({3, 0,  3,TA::Ship::State::Available});
+        ship.push_back({5, 14, 0,TA::Ship::State::Available});
+        ship.push_back({7, 10, 10,TA::Ship::State::Available});
+        
+        for(int i=2;i<size;i+=3)
+            for(int j=2;j<size;j+=3)
+                way.emplace_back(i,j);
 
-        std::vector<TA::Ship> tmp;
-        tmp.push_back({3, 0,  0,TA::Ship::State::Available});
-        tmp.push_back({3, 5,  0,TA::Ship::State::Available});
-        tmp.push_back({5, 0,  5,TA::Ship::State::Available});
-        tmp.push_back({7, 10, 10,TA::Ship::State::Available});
-
-        int i,j;
-        for(i = 0; i < 20; i++){
-            for(j = 0; j < 20; j++){
-                valid[i][j] = 1;
-            }
-        }
-
-        hit_state = false;
-
-        for(i = 2; i < 20; i += 6){
-            for(j = 2; j < 20; j+= 6){
-                way.emplace(i, j);
-            }
-        }
-        for(i = 5; i < 20; i += 6){
-            for(j = 5; j < 20; j+= 6){
-                way.emplace(i, j);
-            }
-        }
-        for(i = 2; i < 20; i += 6){
-            for(j = 5; j < 20; j+= 6){
-                way.emplace(i, j);
-            }
-        }
-        for(i = 2; i < 20; i += 6){
-            for(j = 5; j < 20; j+= 6){
-                way.emplace(i, j);
-            }
-        }
-
-
-        return tmp;
+        std::mt19937 mt;
+        mt.seed( std::time(nullptr) + 7122 + (order?1:0) );
+        std::shuffle(way.begin(), way.end(), mt);
+        return ship;
     }
 
     virtual void callbackReportEnemy(std::vector<std::pair<int,int>> pos) override
     {
-        report_hit_x = pos.back().first;
-        report_hit_y = pos.back().second;
+        if(pos.empty()){
+            return ;
+        }
+        else{
+            for(auto i : pos){
+                
+            }
+        }
     }
 
     virtual std::pair<int,int> queryWhereToHit(TA::Board) override
     {
-        std::cout<<"here!!!!!!!!!!!!!!"<<std::endl;
-        if(hit_state){
-            while(true){
-                auto res = hitway.front();
-                attack_x = res.first;
-                attack_y = res.second;
-                hitway.pop();
-                if(valid[attack_x][attack_y]){
-                    valid[attack_x][attack_y] = 0;
-                    return res;
-                }
-            }
-        }
-        else{
-            while(true){
-                auto res = way.front();
-                attack_x = res.first;
-                attack_y = res.second;
-                way.pop();
-                if(valid[attack_x][attack_y]){
-                    valid[attack_x][attack_y] = 0;
-                    return res;
-                }
-            }
-        }
-
+        if(way.empty()) std::cout<<"empty";
+        auto res = way.back();
+        way.pop_back();
+        return res;
     }
 
-    virtual void callbackReportHit(bool hit)  override
+    virtual void callbackReportHit(bool)  override
     {
-        if(hit && hit_state==false){
-            hit_state = true;
-            hit_x = attack_x;
-            cnt_shipsize = 0;
-        }
-
-        if(!hit_state) return;
-
-        if(cnt_shipsize <= 10){
-            if(hit){
-                cnt_shipsize++;
-                while(true){
-                    if(attack_x+1 >= 20){
-                        right_bound = 20;
-                        attack_x = hit_x;
-                        cnt_shipsize += 10;
-                        break;
-                    }
-                    if(valid[attack_x+1][attack_y]){
-                        hitway.emplace(attack_x+1, attack_y);
-                        return;
-                    }
-                    else{
-                        attack_x += 1;
-                        cnt_shipsize++;
-                    }
-                }
-            }
-            else{
-                right_bound = attack_x;
-                attack_x = hit_x;
-                cnt_shipsize += 10;
-            }
-        }
-
-        if(cnt_shipsize >= 10 && cnt_shipsize <= 20){
-            if(hit){
-                while(true){
-                    if(attack_x-1 < 0){
-                        attack_x = right_bound / 2;
-                        cnt_shipsize += 10;
-                        break;
-                    }
-                    if(valid[attack_x-1][attack_y]){
-                        hitway.emplace(attack_x-1, attack_y);
-                        return;
-                    }
-                    else{
-                        attack_x -= 1;
-                        cnt_shipsize++;
-                    }
-                }
-            }
-            else{
-                hit_x = right_bound - attack_x;   // hit_x serves as the boat's size now
-                attack_x += hit_x / 2;
-                cnt_shipsize += 10;
-            }
-        }
-
-        if(cnt_shipsize >= 20 && cnt_shipsize <= 30){
-            if(hit){
-                while(true){
-                    if(attack_y >= 20){
-                        up_bound = 20;
-                        cnt_shipsize += 10;
-                        break;
-                    }
-                    if(valid[attack_x][attack_y+1]){
-                        hitway.emplace(attack_x, attack_y+1);
-                        return;
-                    }
-                    else{
-                        attack_y += 1;
-                        cnt_shipsize++;
-                    }
-                }
-            }
-            else{
-                up_bound = attack_y;
-                cnt_shipsize += 10;
-            }
-        }
-
-        if(cnt_shipsize >= 30){
-            attack_y = up_bound - hit_x/2;
-            hitway.emplace(attack_x, attack_y);
-            for(int i = right_bound-hit_x+1; i < right_bound; i++){
-                for(int j = up_bound-hit_x+1; j < up_bound; j++){
-                    valid[i][j] = 0;
-                }
-            }
-            hit_state = false;
-        }
 
     }
 
-    virtual std::vector<std::pair<int,int>> queryHowToMoveShip(std::vector<TA::Ship> sh) override
+    virtual std::vector<std::pair<int,int>> queryHowToMoveShip(std::vector<TA::Ship>) override
     {
-        /*
-        int dx = sh.x - hit_x;
-        int dy = sh.y - hit_y;
-        int ab_dx = max(dx, -dx);
-        int ab_dy = max(dy. -dy);
-
-        if(ab_dx > ab_dy){
-            sh.y = y + dy;
-        }else{
-            sh.x = x + dx;
+        std::vector<std::pair<int,int>> ship_locate;
+        for(auto i : ship){
+            ship_locate.emplace_back(i.x, i.y);
         }
-    */
+        return ship_locate;
     }
-    
 };
