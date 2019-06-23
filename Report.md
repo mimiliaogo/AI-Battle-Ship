@@ -5,7 +5,7 @@
 ```bash
 g++-8 -std=c++17 -O2 -Wall -Wextra -fPIC -I./ -shared AITemplate/Porting.cpp -o ./build/a1.so
 ```
-
+```
 以下是我們的解釋:
 #-O2:
 -O means optimizing.It can improve the performance and/or code size at the expense of compilation time and may have the ability of debugging the program. And –O2 means optimizing more. As compared to -O, this option increases both compilation time and the performance of the generated code.簡而言之就是對code size跟execution time做最佳化。
@@ -26,7 +26,7 @@ Write the build output to an output file.
 #-Werror          : regard warring as error 會將所有警告都轉成錯誤，讓編譯停止
 #-Wextra          : print extra warring hint
 #-pedantic-errors : follow ANSI standard, otherwise, turn warring to error
-
+```
 ## 請解釋 Game.h 裡面 ```call``` 函數的功能 (5%)
 ```c
 template<typename Func ,typename... Args, 
