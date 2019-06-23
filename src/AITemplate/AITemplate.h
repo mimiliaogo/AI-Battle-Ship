@@ -7,16 +7,15 @@
 #include <random>
 #include <ctime>
 #include <iostream>
+#include <vector>
 
 class AI : public AIInterface
 {
     std::vector<std::pair<int,int>> way;
-    std::vector<std::pair<int,int>> priority_way;
     std::vector<TA::Ship> ship;
-    int pos_x, pos_y;
-    int x_size, y_size;
-    int attack_status;
-    int board[21][21];
+    int x_buffer, y_buffer;
+    int board_size;
+    int enemy_board[21][21] = {0};
 public:
     virtual std::vector<TA::Ship> init(int size ,std::vector<int> ship_size, bool order, std::chrono::milliseconds runtime) override
     {
@@ -35,32 +34,62 @@ public:
         std::mt19937 mt;
         mt.seed( std::time(nullptr) + 7122 + (order?1:0) );
         std::shuffle(way.begin(), way.end(), mt);
+        board_size = size;
         return ship;
     }
 
-    virtual void callbackReportEnemy(std::vector<std::pair<int,int>> pos) override
+    virtual void callbackReportEnemy(std::vector<std::pair<int,int>>) override
     {
-        if(pos.empty()){
-            return ;
-        }
-        else{
-            for(auto i : pos){
-                
-            }
-        }
+        return ;
     }
 
     virtual std::pair<int,int> queryWhereToHit(TA::Board) override
-    {
-        if(way.empty()) std::cout<<"empty";
+    {    
         auto res = way.back();
+        while(1){
+            res = way.back();
+            if(enemy_board[res.first][res.second] == 1){
+                way.pop_back();
+            }
+            else if(enemy_board[res.first][res.second] == 0){
+                enemy_board[res.first][res.second] = 1;
+                break;
+            }
+        }
+        x_buffer = res.first;
+        y_buffer = res.second;
+        std::cout<<"attack: "<<x_buffer<<" "<<y_buffer<<" ";
         way.pop_back();
         return res;
+        
     }
 
-    virtual void callbackReportHit(bool)  override
+    virtual void callbackReportHit(bool s)  override
     {
-
+        if(s == true){
+            std::cout<<"Hit ";
+            //std::cout<<isValidPlace(x_buffer+1, y_buffer)<<" "<<(enemy_board[x_buffer+1][y_buffer] == 0)<<" ";
+            if(isValidPlace(x_buffer+1, y_buffer) && enemy_board[x_buffer+1][y_buffer] == 0){
+                //std::cout<<x_buffer + 1<<" "<<y_buffer<<" ";
+                way.emplace_back(x_buffer+1, y_buffer);
+            }
+            //std::cout<<isValidPlace(x_buffer-1, y_buffer)<<" "<<(enemy_board[x_buffer-1][y_buffer] == 0)<<" ";
+            if(isValidPlace(x_buffer-1, y_buffer) && enemy_board[x_buffer-1][y_buffer] == 0){
+                //std::cout<<x_buffer - 1<<" "<<y_buffer<<" ";
+                way.emplace_back(x_buffer-1, y_buffer);
+            }
+            //std::cout<<isValidPlace(x_buffer, y_buffer+1)<<" "<<(enemy_board[x_buffer][y_buffer+1] == 0)<<" ";
+            if(isValidPlace(x_buffer, y_buffer+1) && enemy_board[x_buffer][y_buffer+1] == 0){
+                //std::cout<<x_buffer<<" "<<y_buffer + 1<<" ";
+                way.emplace_back(x_buffer, y_buffer+1);
+            }
+            //std::cout<<isValidPlace(x_buffer, y_buffer-1)<<" "<<(enemy_board[x_buffer+1][y_buffer-1] == 0)<<" ";
+            if(isValidPlace(x_buffer, y_buffer-1) && enemy_board[x_buffer][y_buffer-1] == 0){
+                //std::cout<<x_buffer<<" "<<y_buffer - 1<<" ";
+                way.emplace_back(x_buffer, y_buffer-1);
+            }
+        }
+        std::cout<<std::endl;
     }
 
     virtual std::vector<std::pair<int,int>> queryHowToMoveShip(std::vector<TA::Ship>) override
@@ -70,5 +99,20 @@ public:
             ship_locate.emplace_back(i.x, i.y);
         }
         return ship_locate;
+    }
+    bool isValidPlace(int x, int y){
+        if(0<=x && x<board_size && 0<=y && y<board_size){
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    void showWay(void){
+        std::cout<<"way:"<<std::endl;
+        for(auto i : way){
+            std::cout<<i.first<<" "<<i.second<<std::endl;
+        }
+        return ;
     }
 };

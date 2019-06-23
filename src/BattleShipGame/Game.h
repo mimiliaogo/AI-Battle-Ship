@@ -48,21 +48,23 @@ namespace TA
                 //=========================Player1 attack=========================
                 updateShipState(1);
                 if(startShipAttack(1) == false){
+                    updateGuiGame();
                     break;
                 }
                 moveshipState(1);
                 updateGuiGame();
-                sleep_for(nanoseconds(10));
-                sleep_until(system_clock::now() + milliseconds(1000));
+                //sleep_for(nanoseconds(10));
+                //sleep_until(system_clock::now() + milliseconds(1000));
                 //=========================Player2 attack=========================
                 updateShipState(2);
                 if(startShipAttack(2) == false){
+                    updateGuiGame();
                     break;
                 }
                 moveshipState(2);
                 updateGuiGame();
-                sleep_for(nanoseconds(10));
-                sleep_until(system_clock::now() + milliseconds(1000));
+                //sleep_for(nanoseconds(10));
+                //sleep_until(system_clock::now() + milliseconds(1000));
             }
             return ;
         } 
