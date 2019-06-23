@@ -53,7 +53,7 @@ namespace TA
                 moveshipState(1);
                 updateGuiGame();
                 sleep_for(nanoseconds(10));
-                sleep_until(system_clock::now() + milliseconds(500));
+                sleep_until(system_clock::now() + milliseconds(1000));
                 //=========================Player2 attack=========================
                 updateShipState(2);
                 if(startShipAttack(2) == false){
@@ -62,7 +62,7 @@ namespace TA
                 moveshipState(2);
                 updateGuiGame();
                 sleep_for(nanoseconds(10));
-                sleep_until(system_clock::now() + milliseconds(500));
+                sleep_until(system_clock::now() + milliseconds(1000));
             }
             return ;
         } 
@@ -236,7 +236,7 @@ namespace TA
                         m_P1_can_attack++;
                     } 
                 }
-                std::cout<<"canAttack: "<<m_P1_can_attack<<"\n";
+                //std::cout<<"canAttack: "<<m_P1_can_attack<<"\n";
                 for(int i=0; i<m_P1_can_attack; i++){
                     m_P1_attack_place = call(&AIInterface::queryWhereToHit, m_P1, m_P2Board);
                     //std::cout<<m_P1_attack_place.first<<" "<<m_P1_attack_place.second<<"\n";
