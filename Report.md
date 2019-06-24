@@ -5,28 +5,31 @@
 ```bash
 g++-8 -std=c++17 -O2 -Wall -Wextra -fPIC -I./ -shared AITemplate/Porting.cpp -o ./build/a1.so
 ```
-```
+
 以下是我們的解釋:
-#-O2:
+### -O2:
 -O means optimizing.It can improve the performance and/or code size at the expense of compilation time and may have the ability of debugging the program. And –O2 means optimizing more. As compared to -O, this option increases both compilation time and the performance of the generated code.簡而言之就是對code size跟execution time做最佳化。
-#-Wall:
+### -Wall:
 This enables all the warnings about constructions that some users consider questionable, and that are easy to avoid (or modify to prevent the warning), even in conjunction with macros.幾乎包含了一般情況該警告的事項。
-#-Wextra:
+### -Wextra:
 This enables some extra warning which are not enabled by -Wall.
-#-fPIC:
+### -fPIC:
 If supported for the target machine, it will generate position-independent code suitable for use in a shared library and dynamic linking and avoiding any limit on the size of the global offset table.之所以要產生 position-independent code也就是產生的code只有相對地址沒有絕對位置，是因為shared library  被加載時內存的位置不固定，因此需要code可以被加載到內存的任意位置都可以正確執行。
-#-I : adds include directory of header files. 
-#-shared: 
+### -I : adds include directory of header files. 
+### -shared: 
 Produce a shared object which can then be linked with other objects to form an executable.
-#-o:
+### -o:
 Write the build output to an output file.
 
 
 另外，是我們補充的其他編譯指令解釋:
-#-Werror          : regard warring as error 會將所有警告都轉成錯誤，讓編譯停止
-#-Wextra          : print extra warring hint
-#-pedantic-errors : follow ANSI standard, otherwise, turn warring to error
-```
+### -Werror          :
+ regard warring as error 會將所有警告都轉成錯誤，讓編譯停止
+### -Wextra          : 
+print extra warring hint
+### -pedantic-errors : 
+follow ANSI standard, otherwise, turn warring to error
+
 ## 請解釋 Game.h 裡面 ```call``` 函數的功能 (5%)
 ```c
 template<typename Func ,typename... Args, 
@@ -98,19 +101,30 @@ return val.get()
 ## 分工與進度規劃 (5%)
 
 ( 請說明團隊上的分工，每個人做了什麼，如果有進度規劃也請提供 )
-```
-分工:
-黃文遠: AI 版本2 、gamerunner 
-廖凰汝: gamerunner
-陳弘輊：　AI 版本1
-進度規劃：
-6/1：　進度規劃
-6/2~6/7: 看懂code 理解大致上要做甚麼
-6/8: 決定分工，並開github，fork
-6/19~6/21: 各自寫好code，問題討論，互相追蹤進度
-6/22: gamerunner merge，修好一些bug，gamerunner 完成
-6/23: AI　做些修改，生出用dfs做的版本二，整體完成
-```
+
+### 分工:
+#### 黃文遠:
+1. AI 版本2 
+2. gamerunner 更新資訊階段 與 攻擊階段
+3. Report call函數 與 shared library 以及 排版
+#### 廖凰汝: 
+1. gamerunner 移動階段
+2. Report 編譯指令的含意 與 分工與進度規劃
+#### 陳弘輊：　
+1. AI 版本1
+2. Report AI版本2 Algorithm
+### 進度規劃：
+
+|日期|進度|
+|:-------:|:---------:|
+|6/1|進度規劃|
+|6/2 ~ 6/7 |看懂code 理解大致上要做甚麼|
+|6/8|決定分工，並開github，fork|
+|6/19 ~ 6/21|各自寫好code，問題討論，互相追蹤進度|
+|6/22|gamerunner merge，修好一些bug，gamerunner 完成|
+|6/23|AI 做些修改，生出用dfs做的版本二，整體完成|
+
+
 
 ## 心得 (10%) 每人都要寫，不少於 100 字，Ex. 實作時有遇到什麼困難，如何排除等等。
 
