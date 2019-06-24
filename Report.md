@@ -15,7 +15,8 @@ This enables all the warnings about constructions that some users consider quest
 This enables some extra warning which are not enabled by -Wall.
 ### -fPIC:
 If supported for the target machine, it will generate position-independent code suitable for use in a shared library and dynamic linking and avoiding any limit on the size of the global offset table.之所以要產生 position-independent code也就是產生的code只有相對地址沒有絕對位置，是因為shared library  被加載時內存的位置不固定，因此需要code可以被加載到內存的任意位置都可以正確執行。
-### -I : adds include directory of header files. 
+### -I : 
+adds include directory of header files. 
 ### -shared: 
 Produce a shared object which can then be linked with other objects to form an executable.
 ### -o:
